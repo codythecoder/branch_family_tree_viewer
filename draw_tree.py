@@ -14,7 +14,7 @@ import sys
 pygame.init()
 font = pygame.font.Font(pygame.font.get_default_font(), 24)
 
-generations = int(sys.argv[1]) if len(sys.argv) > 2 else 5
+generations = int(sys.argv[1]) if len(sys.argv) > 1 else 5
 # generations = 3
 screen_size = (1500, 900)
 
