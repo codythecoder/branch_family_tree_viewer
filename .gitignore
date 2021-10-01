@@ -1,3 +1,8 @@
+# family tree files
+*.gedcom
+data/
+bak/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
