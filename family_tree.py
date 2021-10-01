@@ -13,6 +13,20 @@ class Sex(Enum):
     other = 3
     unknown = 4
 
+    def __str__(self) -> str:
+        if self == Sex.male:
+            return 'Sex.male'
+        if self == Sex.female:
+            return 'Sex.female'
+        if self == Sex.other:
+            return 'Sex.other'
+        if self == Sex.unknown:
+            return 'Sex.unknown'
+        raise NotImplementedError
+
+    def __repr__(self) -> str:
+        return str(self)
+
 
 class Relation(Enum):
     parent = 1
@@ -146,54 +160,6 @@ class Person:
 
     def __hash__(self) -> int:
         return self.id
-
-    def save_str(self):
-        out = repr(self)
-        out = re_fix_enum.sub(r'\1', out)
-        out = out.replace('datetime.', '')
-        return out
-
-    def __str__(self) -> str:
-        fam = [
-            str(f) for f in self.family
-        ]
-        sep = ',\n        '
-        parts = [
-            f"name={repr(self.name)}",
-            f"id={self.id}",
-            f"sources={self.sources}",
-            f"family=[\n        {sep.join(str(f) for f in self.family)}\n    ]",
-            f"dob={repr(self.dob)}",
-            f"dod={repr(self.dod)}",
-            f"sex={self.sex}",
-            f"child_complete={repr(self.child_complete)}",
-            f"spouse_complete={repr(self.spouse_complete)}",
-            f"blood={self.blood}",
-            f"notes={repr(self.notes)}",
-        ]
-        sep = ',\n    '
-        return f"""Person(\n    {sep.join(parts)}\n)"""
-
-    def __repr__(self) -> str:
-        fam = [
-            repr(f) for f in self.family
-        ]
-        sep = ',\n        '
-        parts = [
-            f"name={repr(self.name)}",
-            f"id={self.id}",
-            f"sources={self.sources}",
-            f"family=[\n        {sep.join(str(f) for f in self.family)}\n    ]",
-            f"dob={repr(self.dob)}",
-            f"dod={repr(self.dod)}",
-            f"sex={self.sex}",
-            f"child_complete={repr(self.child_complete)}",
-            f"spouse_complete={repr(self.spouse_complete)}",
-            f"blood={self.blood}",
-            f"notes={repr(self.notes)}",
-        ]
-        sep = ',\n    '
-        return f"""Person(\n    {sep.join(parts)}\n)"""
 
     def __eq__(self, other: 'Person') -> bool:
         if type(self) != type(other):
