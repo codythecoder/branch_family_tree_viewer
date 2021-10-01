@@ -141,18 +141,18 @@ class Node(pygame.sprite.Sprite):
 
     def move_spouse(self, people: Sequence[Person]):
         for spouse in self.person.spouses:
-            if spouse.person not in people:
+            if spouse not in people:
                 continue
             if self.person.sex == Sex.male:
-                self.pos[0] += (spouse.person.sprite.rect.left - self.rect.right)/2-10
+                self.pos[0] += (spouse.sprite.rect.left - self.rect.right)/2-10
             else:
-                self.pos[0] += (spouse.person.sprite.rect.right - self.rect.left)/2+10
+                self.pos[0] += (spouse.sprite.rect.right - self.rect.left)/2+10
 
     def move_children(self, people: Sequence[Person]):
         positions = []
         for child in self.person.children:
-            if child.person in people:
-                positions.append(child.person.sprite.rect.centerx)
+            if child in people:
+                positions.append(child.sprite.rect.centerx)
         if positions:
             self.pos[0] += sum(positions)/len(positions) - self.rect.centerx
 
