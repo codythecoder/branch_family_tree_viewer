@@ -210,7 +210,7 @@ def _draw(screen, offset: tuple[int, int], people: set[Person], nodeGroup):
 
     for person in people:
         allowed_parents = [
-            p.person for p in person.parents if p.person in people]
+            p for p in person.parents if p in people]
         if len(allowed_parents) == 1:
             parent = allowed_parents[0]
             pygame.draw.line(
@@ -223,10 +223,9 @@ def _draw(screen, offset: tuple[int, int], people: set[Person], nodeGroup):
             pygame.draw.line(screen, (0, 0, 0),
                                 person.sprite.rect.center, new_pos)
 
-        for fam in person.spouses:
-            parent = fam.person
-            if parent in people:
-                pygame.draw.line(screen, (255, 0, 0), person.sprite.rect.center, parent.sprite.rect.center, 3)
+        for spouse in person.spouses:
+            if spouse in people:
+                pygame.draw.line(screen, (255, 0, 0), person.sprite.rect.center, spouse.sprite.rect.center, 3)
 
     nodeGroup.draw(screen)
 
@@ -281,21 +280,20 @@ def drawTree(tree: Tree):
 
         # if they have a spouse
         for parent in person.parents:
-            if not hasattr(parent.person, 'pos'):
+            if not hasattr(parent, 'pos'):
                 continue
 
             if new.sex == Sex.male:
-                add_left(parent.person, new, False)
+                add_left(parent, new, False)
                 return
             else:
-                add_right(parent.person, new, False)
+                add_right(parent, new, False)
                 return
 
         # if there's a person on their left
         for p in generation_rows[person.g][person.pos::-1]:
             value = None
             for p2 in p.parents:
-                p2 = p2.person
                 if hasattr(p2, 'pos'):
                     if value is None or p2.pos > value.pos:
                         value = p2
@@ -307,7 +305,6 @@ def drawTree(tree: Tree):
         for p in generation_rows[person.g][person.pos+1:]:
             value = None
             for p2 in p.parents:
-                p2 = p2.person
                 if hasattr(p2, 'pos'):
                     if value is None or p2.pos < value.pos:
                         value = p2
@@ -318,7 +315,7 @@ def drawTree(tree: Tree):
     def get_child_row(person: Person, row: int, dir:Literal['left', 'right'], ignore=None) -> Union[None, Person]:
         if not hasattr(person, 'g'):
             return
-        # if person.blood and any(p.person.blood for p in person.spouses):
+        # if person.blood and any(p.blood for p in person.spouses):
         #     return
         if person == ignore:
             return
@@ -330,7 +327,6 @@ def drawTree(tree: Tree):
         print('    gcr', row, person.name, f'(ignore {ignore if ignore is None else ignore.name})')
         children: list[Person] = []
         for child in person.children:
-            child = child.person
             rv = get_child_row(child, row, dir)
             if rv is not None:
                 children.append(rv)
@@ -354,7 +350,7 @@ def drawTree(tree: Tree):
         # if person.pos > 0 and generation_rows[person.g][person.pos-1] in person.seen_path:
         #     idx = person.seen_path.index(generation_rows[person.g][person.pos-1])
         #     print('checking left', [p.name for p in person.seen_path])
-        #     if person.seen_path[idx-1].blood and any(p.person.blood for p in person.seen_path[idx-1].spouses):
+        #     if person.seen_path[idx-1].blood and any(p.blood for p in person.seen_path[idx-1].spouses):
         #         if person.seen_path[idx].sex == Sex.female:
         #             if person.seen_path[idx-1].sex == Sex.male:
         #                 add_left(person.seen_path[idx-1], new, False)
@@ -363,7 +359,7 @@ def drawTree(tree: Tree):
         # if person.pos < len(generation_rows[person.g]) - 1 and generation_rows[person.g][person.pos+1] in person.seen_path:
         #     print('checking right', [p.name for p in person.seen_path])
         #     idx = person.seen_path.index(generation_rows[person.g][person.pos+1])
-        #     if person.seen_path[idx-1].blood and any(p.person.blood for p in person.seen_path[idx-1].spouses):
+        #     if person.seen_path[idx-1].blood and any(p.blood for p in person.seen_path[idx-1].spouses):
         #         if person.seen_path[idx].sex == Sex.male:
         #             if person.seen_path[idx-1].sex == Sex.female:
         #                 add_right(person.seen_path[idx-1], new, False)
@@ -377,7 +373,7 @@ def drawTree(tree: Tree):
             if child is not None:
                 print('child of', p.name)
 
-                if child.blood and any(p.person.blood for p in child.spouses):
+                if child.blood and any(p.blood for p in child.spouses):
                     # add_left(child, new, False)
                     continue
                 else:
@@ -391,7 +387,7 @@ def drawTree(tree: Tree):
             if child is not None:
                 print('child of', p.name)
 
-                if child.blood and any(p.person.blood for p in child.spouses):
+                if child.blood and any(p.blood for p in child.spouses):
                     # add_right(child, new, False)
                     continue
                 else:
@@ -404,14 +400,14 @@ def drawTree(tree: Tree):
         # for p1 in reversed(new.seen_path):
         #     p1: Person
         #     for p in p1.siblings:
-        #         p: Person = p.person
+        #         p: Person = p
         #         p: Person
         #         if p.pos < p1.pos:
         #             print('checking next person right', p.name)
         #             child = get_child_row(p, new.g, 'right', last)
         #             if child is not None:
-        #                 child_parent = [cp.person for cp in child.parents if hasattr(cp.person, 'pos')]
-        #                 new_parent = [cp.person for cp in new.parents if hasattr(cp.person, 'pos')]
+        #                 child_parent = [cp for cp in child.parents if hasattr(cp, 'pos')]
+        #                 new_parent = [cp for cp in new.parents if hasattr(cp, 'pos')]
         #                 # check if the rightmost child of this person in the 
         #                 #   chain is more left than the current persons parents
         #                 print('check', child.name)
@@ -430,7 +426,7 @@ def drawTree(tree: Tree):
         #                                 print('finished 0 - 0')
         #                                 return
         #                             # break
-        #                     if child.blood and any(p.person.blood for p in child.spouses):
+        #                     if child.blood and any(p.blood for p in child.spouses):
         #                         add_left(child, new, False)
         #                         print('left of', child.name)
         #                     else:
@@ -442,8 +438,8 @@ def drawTree(tree: Tree):
         #             print('checking person left', p.name)
         #             child = get_child_row(p, new.g, 'left', last)
         #             if child is not None:
-        #                 child_parent = [cp.person for cp in child.parents if hasattr(cp.person, 'pos')]
-        #                 new_parent = [cp.person for cp in new.parents if hasattr(cp.person, 'pos')]
+        #                 child_parent = [cp for cp in child.parents if hasattr(cp, 'pos')]
+        #                 new_parent = [cp for cp in new.parents if hasattr(cp, 'pos')]
         #                 # check if the leftmost child of this person in the 
         #                 #   chain is more right than the current persons parents
         #                 print('check', child.name)
@@ -461,7 +457,7 @@ def drawTree(tree: Tree):
         #                                 print('finished 1 - 0')
         #                                 return
         #                             # break
-        #                     if child.blood and any(p.person.blood for p in child.spouses):
+        #                     if child.blood and any(p.blood for p in child.spouses):
         #                         add_right(child, new, False)
         #                         print('right of', child.name)
         #                     else:
@@ -472,7 +468,7 @@ def drawTree(tree: Tree):
         #     # child = get_child_row(p, new.g, 'left', last)
         #     # if child is not None:
         #     #     print('child of', p.name)
-        #     #     if child.blood and any(p.person.blood for p in child.spouses):
+        #     #     if child.blood and any(p.blood for p in child.spouses):
         #     #         add_right(child, new, False)
         #     #     else:
         #     #         add_left(child, new, False)
@@ -502,7 +498,6 @@ def drawTree(tree: Tree):
         smallest_g = min(person.g, smallest_g)
         largest_g = max(person.g, largest_g)
         for sibling in person.siblings:
-            sibling = sibling.person
             if sibling.id in seen:
                 continue
             if sibling not in people:
@@ -519,7 +514,6 @@ def drawTree(tree: Tree):
             seen.add(sibling.id)
 
         for spouse in person.spouses:
-            spouse = spouse.person
             if spouse.id in seen:
                 continue
             if spouse not in people:
@@ -535,7 +529,6 @@ def drawTree(tree: Tree):
             seen.add(spouse.id)
 
         for parent in person.parents:
-            parent = parent.person
             if parent.id in seen:
                 continue
             if parent not in people:
@@ -550,7 +543,6 @@ def drawTree(tree: Tree):
             seen.add(parent.id)
 
         for child in person.children:
-            child = child.person
             if child.id in seen:
                 continue
             if child not in people:
@@ -652,10 +644,10 @@ def drawTree(tree: Tree):
                     if person.sprite.rect.collidepoint(mouse):
                         any_children = False
                         for sib in person.siblings:
-                            if sib.person.name.endswith(' children'):
-                                sib.person.name = str(int(sib.person.name.split()[0]) + 1) + ' children'
+                            if sib.name.endswith(' children'):
+                                sib.name = str(int(sib.name.split()[0]) + 1) + ' children'
                                 any_children = True
-                                sib.person.sprite.redraw()
+                                sib.sprite.redraw()
                         if not any_children:
                             person.name = '1 children'
                             person.sprite.redraw()

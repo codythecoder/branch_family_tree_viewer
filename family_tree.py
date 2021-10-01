@@ -211,7 +211,7 @@ class Person:
     @property
     def parents(self):
         return [
-            f
+            f.person
             for f in self.family
             if f.relation.is_parent()
         ]
@@ -219,7 +219,7 @@ class Person:
     @property
     def children(self):
         return [
-            f
+            f.person
             for f in self.family
             if f.relation.is_child()
         ]
@@ -227,7 +227,7 @@ class Person:
     @property
     def spouses(self):
         return [
-            f
+            f.person
             for f in self.family
             if f.relation.is_spouse()
         ]
@@ -235,7 +235,7 @@ class Person:
     @property
     def siblings(self):
         return [
-            f
+            f.person
             for f in self.family
             if f.relation == Relation.sibling
         ]
