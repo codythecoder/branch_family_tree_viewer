@@ -3,7 +3,7 @@ import re
 from typing import DefaultDict, Iterable, Literal, Sequence, Union
 import pygame
 from pygame import sprite
-from family_tree import Tree, Person, Relation, Sex, Family
+from family_tree import Tree, Person, Relation, Gender, Family
 from random import randrange
 from numbers import Number
 from PIL import Image
@@ -226,7 +226,7 @@ def drawTree(tree: Tree):
             if not hasattr(parent, 'pos'):
                 continue
 
-            if new.sex == Sex.male:
+            if new.gender == Gender.male:
                 add_left(parent, new, False)
                 return
             else:
@@ -426,7 +426,7 @@ def drawTree(tree: Tree):
             p: Person
             print(p.name, p.g, '==', new.g, end=' ')
             if p.g == new.g:
-                if p.sex == Sex.male:
+                if p.gender == Gender.male:
                     add_left(p, new, False)
                     print('finished 4')
                     return
@@ -447,7 +447,7 @@ def drawTree(tree: Tree):
                 continue
             sibling.g = person.g
             sibling.seen_path = person.seen_path + [person]
-            if person.sex == Sex.male:
+            if person.gender == Gender.male:
                 add_left(person, sibling)
             else:
                 add_right(person, sibling)
@@ -463,7 +463,7 @@ def drawTree(tree: Tree):
                 continue
             spouse.g = person.g
             spouse.seen_path = person.seen_path + [person]
-            if person.sex == Sex.male:
+            if person.gender == Gender.male:
                 add_right(person, spouse)
             else:
                 add_left(person, spouse)

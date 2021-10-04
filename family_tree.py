@@ -7,21 +7,21 @@ import re
 re_fix_enum = re.compile(r'<([\w\.]+): [^>]+>')
 
 
-class Sex(Enum):
+class Gender(Enum):
     male = 1
     female = 2
     other = 3
     unknown = 4
 
     def __str__(self) -> str:
-        if self == Sex.male:
-            return 'Sex.male'
-        if self == Sex.female:
-            return 'Sex.female'
-        if self == Sex.other:
-            return 'Sex.other'
-        if self == Sex.unknown:
-            return 'Sex.unknown'
+        if self == Gender.male:
+            return 'Gender.male'
+        if self == Gender.female:
+            return 'Gender.female'
+        if self == Gender.other:
+            return 'Gender.other'
+        if self == Gender.unknown:
+            return 'Gender.unknown'
         raise NotImplementedError
 
     def __repr__(self) -> str:
@@ -94,7 +94,7 @@ class Person:
     dob: str = None
     dod: str = None
 
-    sex: Sex = Sex.unknown
+    gender: Gender = Gender.unknown
 
     child_complete: Union[date, bool] = False
     spouse_complete: Union[date, bool] = False
@@ -230,9 +230,9 @@ class Tree:
                 if fam.person is None:
                     fam.person = self.get(fam.person_id)
                 if fam.relation == Relation.parent:
-                    if fam.person.sex == Sex.male:
+                    if fam.person.gender == Gender.male:
                         fam.relation = Relation.father
-                    elif fam.person.sex == Sex.female:
+                    elif fam.person.gender == Gender.female:
                         fam.relation = Relation.mother
         for node in self.explore():
             node.blood = True
