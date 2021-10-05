@@ -18,6 +18,14 @@ generations = int(sys.argv[1]) if len(sys.argv) > 1 else 5
 # generations = 3
 screen_size = (1500, 900)
 
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GRAY = (240, 240, 240)
+PERSON_COMPLETE = (200, 200, 200)
+PERSON_CHECK = (250, 250, 150)
+# \([0-9]+, [0-9]+, [0-9]+\)
+
 
 class Vector:
     def __init__(self, point) -> None:
@@ -90,22 +98,18 @@ class Node(pygame.sprite.Sprite):
         # Create an image of the block, and fill it with a color.
         # This could also be an image loaded from the disk.
         self.text: pygame.Surface = font.render(
-            self.person.name, True, (0, 0, 0))
+            self.person.name, True, BLACK)
         self.image = pygame.Surface(self.text.get_size())
-        self.image.fill((240, 240, 240))
+        self.image.fill(GRAY)
 
         if self.person.name.endswith(' children'):
-            color = (200, 200, 200)
-        elif not self.person.parent_complete and not self.person.child_complete:
-            color = (250, 220, 250)
-        elif not self.person.parent_complete:
-            color = (250, 250, 150)
+            color = PERSON_COMPLETE
         elif not self.person.child_complete:
-            color = (250, 250, 240)
+            color = PERSON_CHECK
         elif self.person.double_check:
-            color = (250, 180, 150)
+            color = PERSON_CHECK
         else:
-            color = (200, 200, 200)
+            color = PERSON_COMPLETE
 
         pygame.draw.rect(
             self.image,
@@ -141,38 +145,38 @@ class Node(pygame.sprite.Sprite):
 
 
 def _draw(screen, offset: tuple[int, int], people: set[Person], nodeGroup):
-    screen.fill((255, 255, 255))
+    screen.fill(WHITE)
     # screen.blit(people[0].image, (0, 0))
 
     for i in range(generations+1):
         pygame.draw.rect(
             screen,
-            (240, 240, 240),
+            GRAY,
             (0, i*300+offset[1]+40, screen.get_width(), 40)
         )
 
+    # draw a black line from people to their parent(s)
     for person in people:
-        allowed_parents = [
-            p for p in person.parents if p in people]
+        allowed_parents = [p for p in person.parents if p in people]
         if len(allowed_parents) == 1:
             parent = allowed_parents[0]
             pygame.draw.line(
-                screen, (0, 0, 0), person.sprite.rect.center, parent.sprite.rect.center)
+                screen, BLACK, person.sprite.rect.center, parent.sprite.rect.center)
         elif len(allowed_parents) == 2:
             parent0 = allowed_parents[0]
             parent1 = allowed_parents[1]
             new_pos = (Vector(parent0.sprite.rect.center) +
                         Vector(parent1.sprite.rect.center))/2
-            pygame.draw.line(screen, (0, 0, 0),
+            pygame.draw.line(screen, BLACK,
                                 person.sprite.rect.center, new_pos)
 
         for spouse in person.spouses:
             if spouse in people:
-                pygame.draw.line(screen, (255, 0, 0), person.sprite.rect.center, spouse.sprite.rect.center, 3)
+                pygame.draw.line(screen, RED, person.sprite.rect.center, spouse.sprite.rect.center, 3)
 
     nodeGroup.draw(screen)
 
-    pygame.display.update()
+    pygame.display.flip()
 
 
 def drawTree(tree: Tree):
