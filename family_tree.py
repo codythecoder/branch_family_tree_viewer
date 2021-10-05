@@ -323,8 +323,12 @@ class Tree:
 
     def _explore_blood(self, levels: Union[None, int], _seen: set[Person]=None, _top: set[Person]=None) -> set[Person]:
         if _seen is None or _top is None:
-            _seen = set()
-            _top = set()
+            _seen = {self.head}
+            _top = {self.head}
+
+        if levels == 0:
+            return _seen
+
         seen = set(_seen)
         next_nodes: set[Person] = set()
         next_top: set[Person] = set()
@@ -339,18 +343,17 @@ class Tree:
         while next_nodes:
             node = next_nodes.pop()
             seen.add(node)
-            for parent in node.parents:
-                next_nodes.add(parent)
+            for child in node.children:
+                next_nodes.add(child)
+
 
         # recurse while there's still things to recurse
         if levels is None:
             if seen == _seen:
                 return seen
-            seen = self._explore_blood(levels, seen)
+            seen = self._explore_blood(levels, seen, next_top)
         else:
-            if levels < 0:
-                return seen
-            seen = self._explore_blood(levels-1, seen)
+            seen = self._explore_blood(levels-1, seen, next_top)
 
         return seen
 
