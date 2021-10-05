@@ -180,7 +180,7 @@ def drawTree(tree: Tree):
     offset: Vector = Vector(screen_size) / 2
     drag_screen = None
 
-    people = tree.explore(generations)
+    people = tree.explore_blood(generations)
     print(f'{len(people)=}')
 
     generation_rows: DefaultDict[list[Person]] = defaultdict(list)

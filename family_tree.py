@@ -234,7 +234,7 @@ class Tree:
                         fam.relation = Relation.father
                     elif fam.person.gender == Gender.female:
                         fam.relation = Relation.mother
-        for node in self.explore():
+        for node in self.explore_blood():
             node.blood = True
 
     def connect(self):
@@ -295,90 +295,64 @@ class Tree:
 
         return nodes
 
-    def explore_all(self, levels=None) -> set[Person]:
-        explore: set[Person] = {self.head}
-        seen: set[Person] = set()
+    def explore(self, levels: int) -> set[Person]:
+        print('exploring', levels)
+        if levels == 0:
+            return {self.head}
+
+        seen = self.explore(levels-1)
+
+        next_nodes: set[Person] = set(seen)
+
+        # go up, get one level of parents
+        for item in seen:
+            for person in item.parents:
+                next_nodes.add(person)
+
+        # go down, get all descendents
+        while next_nodes:
+            node = next_nodes.pop()
+            seen.add(node)
+            for person in node.children:
+                next_nodes.add(person)
+
+        return seen
+
+    def explore_blood(self, levels: Union[None, int]=None) -> set[Person]:
+        return self._explore_blood(levels)
+
+    def _explore_blood(self, levels: Union[None, int], _seen: set[Person]=None, _top: set[Person]=None) -> set[Person]:
+        if _seen is None or _top is None:
+            _seen = set()
+            _top = set()
+        seen = set(_seen)
         next_nodes: set[Person] = set()
-        nodes: set[Person] = set()
+        next_top: set[Person] = set()
 
+        # get the next level of grandparents
+        for node in _top:
+            for parent in node.parents:
+                next_nodes.add(parent)
+                next_top.add(parent)
+
+        # add all descendents of grandparnts
+        while next_nodes:
+            node = next_nodes.pop()
+            seen.add(node)
+            for parent in node.parents:
+                next_nodes.add(parent)
+
+        # recurse while there's still things to recurse
         if levels is None:
-            levels = len(self.tree)
+            if seen == _seen:
+                return seen
+            seen = self._explore_blood(levels, seen)
+        else:
+            if levels < 0:
+                return seen
+            seen = self._explore_blood(levels-1, seen)
 
-        for _ in range(levels+1):
-            for node in explore:
-                nodes.add(node)
-                for fam in node.family:
-                    if fam.relation.is_parent():
-                        adding = fam.person
-                        if adding not in seen:
-                            next_nodes.add(adding)
-                            seen.add(adding)
-
-            explore = set()
-            while next_nodes:
-                node = next_nodes.pop()
-                explore.add(node)
-                for fam in node.family:
-                    if fam.relation.is_child():
-                        adding = fam.person
-                        if adding not in seen:
-                            next_nodes.add(adding)
-                            seen.add(adding)
-
-        return nodes
-
-    def explore(self, levels=None) -> set[Person]:
-        top: set[Person] = {self.head}
-        seen: set[Person] = {self.head}
-        next_nodes: set[Person] = set()
-        nodes: set[Person] = set()
-
-        nodes.add(self.head)
-
-        if levels is None:
-            levels = len(self.tree)
-
-        for _ in range(levels):
-            for node in set(top):
-                nodes.add(node)
-                next_nodes.add(node)
-                for fam in node.family:
-                    if fam.relation.is_parent():
-                        adding = fam.person
-                        if adding not in seen:
-                            top.add(adding)
-                            next_nodes.add(adding)
-                            seen.add(adding)
-                            nodes.add(adding)
-
-            while next_nodes:
-                node = next_nodes.pop()
-                for fam in node.family:
-                    if fam.relation.is_child():
-                        adding = fam.person
-                        if adding not in seen:
-                            next_nodes.add(adding)
-                            seen.add(adding)
-                            nodes.add(adding)
-                    # if fam.relation.is_spouse():
-                    #     adding = fam.person
-                    #     if adding not in seen:
-                    #         seen.add(adding)
-                    #         nodes.add(adding)
-
-        return nodes
-
-
-    def get_incomplete_nodes(self, levels=None) -> set[Person]:
-        nodes: set[Person] = set()
-
-        for node in self.explore(levels):
-            # if not (node.parent_complete and node.child_complete and node.spouse_complete):
-            if not (node.parent_complete and node.child_complete):
-                # print(node.id, node.parent_complete, node.child_complete)
-                nodes.add(node)
-
-        return nodes
+        return seen
 
     def add(self, node: Person) -> None:
         self.tree.add(node)
